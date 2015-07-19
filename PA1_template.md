@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading required packages
 We are going to need the following libraries:
@@ -13,11 +8,59 @@ We are going to need the following libraries:
 - ggplot2: for plotting
 - knitr: for weaving RMarkdown to HTML
 
-```{r loadpackages}
+
+```r
 require(dplyr)
+```
+
+```
+## Loading required package: dplyr
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 require(lattice)
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Warning: package 'lattice' was built under R version 3.1.3
+```
+
+```r
 require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```r
 require(knitr)
+```
+
+```
+## Loading required package: knitr
+```
+
+```
+## Warning: package 'knitr' was built under R version 3.1.3
 ```
 
 
@@ -25,7 +68,8 @@ require(knitr)
 
 Unzip and load the raw data.
 
-```{r loaddata}
+
+```r
 unzip("activity.zip")
 rawData <- read.csv("activity.csv")
 ```
@@ -35,7 +79,8 @@ rawData <- read.csv("activity.csv")
 
 Aggregate total number of steps by date.
 
-```{r}
+
+```r
 totalStepsPerDay <- aggregate(x = rawData$steps, 
 							  by = list(date = rawData$date), 
 							  FUN = sum)
@@ -45,31 +90,45 @@ names(totalStepsPerDay) = c("date", "totalSteps")
 
 Calculate mean number of steps per day.
 
-```{r}
+
+```r
 meanSteps <- mean(totalStepsPerDay$totalSteps, na.rm = TRUE)
 meanSteps
 ```
 
+```
+## [1] 10766.19
+```
+
 Calculate median number of steps per day.
 
-```{r}
+
+```r
 medianSteps <- median(totalStepsPerDay$totalSteps, na.rm = TRUE)
 medianSteps
 ```
 
+```
+## [1] 10765
+```
+
 Plot the histogram of total number of steps per day.
 
-```{r fig1}
+
+```r
 qplot(totalSteps, data = totalStepsPerDay, binwidth = 2500, 
 	  xlab = "Number of Steps", main = "Histogram of Total Steps per Day")
 ```
+
+![](PA1_template_files/figure-html/fig1-1.png) 
 
 
 ## What is the average daily activity pattern?
 
 Aggregate average number of steps by interval.
 
-```{r}
+
+```r
 avgStepsPerInt <- aggregate(x = rawData$steps, 
 							by = list(interval = rawData$interval), 
 							FUN = mean, na.rm = TRUE)
@@ -79,14 +138,18 @@ names(avgStepsPerInt) <- c("interval", "avgSteps")
 
 Plot the average number of steps per interval.
 
-```{r fig2}
+
+```r
 xyplot(avgSteps ~ interval, data = avgStepsPerInt, type = "l", 
 	   xlab = "Interval", ylab = "Number of Steps", main = "Average Steps per Interval")
 ```
 
+![](PA1_template_files/figure-html/fig2-1.png) 
+
 The interval with the highest average number of steps is 8:35 - 8:40 am.
 
-```{r}
+
+```r
 maxInterval <- avgStepsPerInt[avgStepsPerInt$avgSteps == max(avgStepsPerInt$avgSteps), 1]
 ```
 
@@ -95,7 +158,8 @@ maxInterval <- avgStepsPerInt[avgStepsPerInt$avgSteps == max(avgStepsPerInt$avgS
 
 I replace any missing value with the average number of steps of that interval.
 
-```{r missingvalues}
+
+```r
 numNA <- sum(is.na(rawData$steps))
 
 newData <- merge(rawData, avgStepsPerInt)
@@ -105,7 +169,8 @@ newData <- mutate(newData, steps = ifelse(is.na(steps), avgSteps, steps))
 
 With missing values filled in, aggregate total number of steps again by date.
 
-```{r}
+
+```r
 newTotalStepsPerDay <- aggregate(x = newData$steps, 
 								 by = list(date = newData$date), 
 								 FUN = sum)
@@ -115,21 +180,26 @@ names(newTotalStepsPerDay) = c("date", "totalSteps")
 
 Plot the histogram of total number steps per day, this time with missing values filled in.
 
-```{r fig3}
+
+```r
 qplot(totalSteps, data = newTotalStepsPerDay, binwidth = 2500,
 	  xlab = "Number of Steps", main = "Histogram of Total Steps per Day")
 ```
 
+![](PA1_template_files/figure-html/fig3-1.png) 
+
 Calculate mean and median number of steps per day.
 
-```{r}
+
+```r
 newMeanSteps <- mean(newTotalStepsPerDay$totalSteps, na.rm = TRUE)
 newMedianSteps <- median(newTotalStepsPerDay$totalSteps, na.rm = TRUE)
 ```
 
 Make a comparison table of mean and median number of steps before/after imputing missing values.
 
-```{r}
+
+```r
 comp <- matrix(c(meanSteps, medianSteps, newMeanSteps, newMedianSteps), ncol = 2)
 colnames(comp) <- c('Original', 'New')
 rownames(comp) <- c('Mean', 'Median')
@@ -138,8 +208,15 @@ comp.table <- as.table(comp)
 
 There's no change in mean and a small change in median.
 
-```{r}
+
+```r
 comp.table
+```
+
+```
+##        Original      New
+## Mean   10766.19 10766.19
+## Median 10765.00 10766.19
 ```
 
 
@@ -148,14 +225,20 @@ comp.table
 Change the system locale because I need the days of week to be in English, i.e. Monday, Tuesday, ...
 
 
-```{r changelocale}
+
+```r
 locale <- Sys.getlocale('LC_TIME')
 Sys.setlocale('LC_TIME', 'C')
 ```
 
+```
+## [1] "C"
+```
+
 Distinguish between weekdays and weekend.
 
-```{r}
+
+```r
 newData <- mutate(newData, weekday = 
 				  	ifelse(weekdays(as.Date(date)) %in% c("Sunday", "Saturday"), FALSE, TRUE))
 
@@ -165,7 +248,8 @@ weekendData <- newData[!newData$weekday, ]
 
 Aggregate average number of steps per interval for weekdays and weenend, respectively. Then combine them together.
 
-```{r}
+
+```r
 weekdayAvgSteps <- aggregate(x = weekdayData$steps, 
 							 by = list(interval = weekdayData$interval), 
 							 FUN = mean, na.rm = TRUE)
@@ -186,14 +270,22 @@ Plot the average number of steps per interval for weekdays and weekend, respecti
 
 It appears that the individual took more steps in the morning over the weekend but fewer steps in the afternoon.
 
-```{r fig4}
+
+```r
 xyplot(avgSteps ~ interval | weekday, data = newAvgStepsPerInt, type = "l", layout = c(1, 2),
 	   xlab = "Interval", ylab = "Number of Steps", main = "Average Steps per Interval")
 ```
 
+![](PA1_template_files/figure-html/fig4-1.png) 
+
 Remember to revert the system locale.
 
-```{r}
+
+```r
 Sys.setlocale('LC_TIME', locale)
+```
+
+```
+## [1] "zh_TW.UTF-8"
 ```
 
