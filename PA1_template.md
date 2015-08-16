@@ -1,7 +1,7 @@
 # Reproducible Research: Peer Assessment 1
 
 ## Loading required packages
-We are going to need the following libraries:
+We need the following libraries:
 
 - dplyr: for transforming data
 - lattice: for plotting
@@ -156,12 +156,17 @@ maxInterval <- avgStepsPerInt[avgStepsPerInt$avgSteps == max(avgStepsPerInt$avgS
 
 ## Imputing missing values
 
-I replace any missing value with the average number of steps of that interval.
+Calculate the number of missing values.
 
 
 ```r
 numNA <- sum(is.na(rawData$steps))
+```
 
+I replace any missing value with the average number of steps of that interval.
+
+
+```r
 newData <- merge(rawData, avgStepsPerInt)
 
 newData <- mutate(newData, steps = ifelse(is.na(steps), avgSteps, steps))
@@ -258,8 +263,8 @@ weekendAvgSteps <- aggregate(x = weekendData$steps,
 							 by = list(interval = weekendData$interval), 
 							 FUN = mean, na.rm = TRUE)
 
-weekendAvgSteps$weekday = "weekday"
-weekdayAvgSteps$weekday = "weekend"
+weekdayAvgSteps$weekday = "weekday"
+weekendAvgSteps$weekday = "weekend"
 
 newAvgStepsPerInt <- rbind(weekdayAvgSteps, weekendAvgSteps)
 
@@ -268,7 +273,7 @@ names(newAvgStepsPerInt) = c("interval", "avgSteps", "weekday")
 
 Plot the average number of steps per interval for weekdays and weekend, respectively, and put the plots side by side for comparison.  
 
-It appears that the individual took more steps in the morning over the weekend but fewer steps in the afternoon.
+It appears that the individual took more steps over the weekend than on weekdays. Moreover, on weekdays, there was a clear peak in the morning.
 
 
 ```r
